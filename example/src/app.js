@@ -14,7 +14,7 @@ export class App {
       console.log('ready')
     })
   }
-  configureRouter(config: RouterConfiguration, router: Router) {
+  configureRouter(config, router) {
     config.options.eagerLoadAll = true;
     config.title = 'Child Route Menu Example';
     config.map([
