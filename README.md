@@ -1,11 +1,99 @@
-# aurelia-skeleton-plugin
+# aurelia-navigation-menu plugin
 
-[![ZenHub](https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)](https://zenhub.io)
-[![Join the chat at https://gitter.im/aurelia/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/aurelia/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Enables eager loading of child routes and creates a navigation menu based on routes and child routes.
+## Installing
+Install with npm
+`npm install aurelia-navigation-menu --save`
 
-This skeleton is part of the [Aurelia](http://www.aurelia.io/) platform. It sets up a standard aurelia plugin using gulp to build your ES6 code with the Babel compiler. Karma/Jasmine testing is also configured.
+If youre using the CLI add teh dependency
 
-> To keep up to date on [Aurelia](http://www.aurelia.io/), please visit and subscribe to [the official blog](http://blog.aurelia.io/) and [our email list](http://eepurl.com/ces50j). We also invite you to [follow us on twitter](https://twitter.com/aureliaeffect). If you have questions, please [join our community on Gitter](https://gitter.im/aurelia/discuss) or use [stack overflow](http://stackoverflow.com/search?q=aurelia). Documentation can be found [in our developer hub](http://aurelia.io/hub.html). If you would like to have deeper insight into our development process, please install the [ZenHub](https://zenhub.io) Chrome or Firefox Extension and visit any of our repository's boards.
+### CLI
+```
+"dependencies": [
+  // ...
+  "aurelia-navigation-menu",
+  //...
+]
+```
+
+## Usage
+
+### Eager Loading of Child Routers with a Truthy `nav` property.
+**By Default only routes that have `nav` set to true will be eager loaded**
+```
+configureRouter(config: RouterConfiguration, router: Router) {
+  config.options.eagerLoadAll = true;
+  config.map([
+    { route: ['', 'home'], name: 'home',  moduleId: 'routes/home/index',  nav: true, title: 'Home' },
+    { route: 'cats',       name: 'cats',  moduleId: 'routes/cats/index',  nav: true, title: 'Cats' },
+    { route: 'dogs',       name: 'dogs',  moduleId: 'routes/dogs/index',  nav: true, title: 'Dogs' },
+    { route: 'birds',      name: 'birds', moduleId: 'routes/birds/index', title: 'Birds' }
+  ]);
+  this.router = router;
+}
+```
+In the above example Home, Cats and Dogs will be checked for a router component.
+
+**If you have nested child routes then you need to add eagerLoadAll to __each__ child  configureRouter function.**
+
+### Eager Load All Child Routers (even with a Falsy or undefined `nav` property)
+```
+configureRouter(config: RouterConfiguration, router: Router) {
+  config.options.eagerLoadAll = true;
+  config.options.eagerIgnoreNav = true;
+  config.title = 'Child Route Menu Example';
+  config.map([
+    { route: ['', 'home'], name: 'home',  moduleId: 'routes/home/index', title: 'Home' },
+    { route: 'cats',       name: 'cats',  moduleId: 'routes/cats/index', title: 'Cats' },
+    { route: 'dogs',       name: 'dogs',  moduleId: 'routes/dogs/index', title: 'Dogs' },
+    { route: 'birds',      name: 'birds', moduleId: 'routes/birds/index', nav: true, title: 'Birds' }
+  ]);
+  this.router = router;
+}
+```
+### Using The Navigation Menu
+This plugin add's a navigation property each navigation item within the App Router.
+For example using the above code you can get Cat's routes by checking: `router.navigation[1].navigation`
+
+### Ensuring The Navigation Menu Is Loaded
+
+```
+import { NavigationMenu } from 'aurelia-navigation-menu';
+import { inject } from 'aurelia-dependency-injection';
+
+@inject(NavigationMenu)
+export class App {
+  constructor(navigationMenu) {
+    navigationMenu;
+    this.navigationMenu = navigationMenu;
+  }
+  activate(params) {
+    return this.navigationMenu.ensureMenu()
+  }
+}
+```
+
+#### Accessing The Navigation Menu
+You can also access the navigation menu from the `NavigationMenu` object/class. In the above example the navigation items will be under: `navigationMenu.menu`
+
+#### Creating A Nestable Menu
+1. Create a Custom Element (nav-menu.html)
+  ```
+  <template bindable="navigation">
+    <ul>
+      <li repeat.for="row of navigation">
+        <a href.bind="row.href" class="${row.isActive ? 'active' : ''}">${row.title}</a>
+        <nav-menu if.bind="row.navigation" navigation.bind="row.navigation"></nav-menu>
+      </li>
+    </ul>
+  </template>
+  ```
+2. Require and refence it in your View (app.html from above example)
+  ```
+  <require from="resources/elements/nav-menu.html"></require>
+  <nav-menu navigation.bind="router.navigation"></nav-menu>
+
+  ```
 
 ## Building The Code
 
