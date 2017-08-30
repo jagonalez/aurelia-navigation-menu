@@ -1,153 +1,18 @@
-define(['exports', 'aurelia-router', 'aurelia-dependency-injection', 'aurelia-templating', 'aurelia-event-aggregator', 'aurelia-path', 'aurelia-metadata', 'aurelia-pal'], function (exports, _aureliaRouter, _aureliaDependencyInjection, _aureliaTemplating, _aureliaEventAggregator, _aureliaPath, _aureliaMetadata, _aureliaPal) {
+define(['exports', './navigation-menu', 'aurelia-router'], function (exports, _navigationMenu, _aureliaRouter) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
   exports.NavigationMenu = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
+  exports.configure = configure;
+  Object.defineProperty(exports, 'NavigationMenu', {
+    enumerable: true,
+    get: function () {
+      return _navigationMenu.NavigationMenu;
     }
+  });
+  function configure(config) {
+    config.instance(_navigationMenu.NavigationMenu, config.container.invoke(_navigationMenu.NavigationMenu));
   }
-
-  var NavigationMenu = exports.NavigationMenu = function () {
-    NavigationMenu.inject = function inject() {
-      return [_aureliaRouter.AppRouter, _aureliaTemplating.CompositionEngine, _aureliaEventAggregator.EventAggregator, _aureliaDependencyInjection.Container];
-    };
-
-    function NavigationMenu(appRouter, compositionEngine, eventAggregator, container) {
-      var _this = this;
-
-      _classCallCheck(this, NavigationMenu);
-
-      this.appRouter = appRouter;
-      this.compositionEngine = compositionEngine;
-      this.eventAggregator = eventAggregator;
-      this.container = container;
-      this.menu = [];
-      this._configureMenuPromise = new Promise(function (resolve) {
-        _this._resolveMenuPromise = resolve;
-      });
-      this.setupEvents();
-    }
-
-    NavigationMenu.prototype.setupEvents = function setupEvents() {
-      var _this2 = this;
-
-      _aureliaPal.DOM.addEventListener('aurelia-composed', function (e) {
-        return _this2.configureMenu();
-      });
-      this.subscriber = this.eventAggregator.subscribe('router:navigation:complete', function (response) {
-        _this2.updatemenu(response.instruction, 0);
-      });
-    };
-
-    NavigationMenu.prototype.configureMenu = function configureMenu() {
-      var _this3 = this;
-
-      this.loadChildRouters(this.appRouter, this.container.root.viewModel).then(function (i) {
-        _this3.menu = i;
-        _this3.updatemenu(_this3.appRouter.currentInstruction, 0);
-        _this3._resolveMenuPromise();
-      });
-    };
-
-    NavigationMenu.prototype.ensureMenu = function ensureMenu() {
-      return this._configureMenuPromise;
-    };
-
-    NavigationMenu.prototype.loadChildRouters = function loadChildRouters(router, viewModel) {
-      var _this4 = this;
-
-      var promise = router.isConfigured ? Promise.resolve() : router.configure(function (c) {
-        return viewModel.configureRouter(c, router);
-      });
-      return promise.then(function () {
-        var eager = router.options.eagerLoadAll || false;
-        var ignoreNav = router.options.eagerIgnoreNav || false;
-
-        var routes = router.routes.filter(function (i) {
-          if (i.route === "" && router.routes.some(function (r) {
-            return r.moduleId === i.moduleId && r.name === i.name;
-          })) return false;
-          if (eager) return ignoreNav ? true : 'nav' in i && i.nav === true;else return i.childRouter === true ? ignoreNav ? true : 'nav' in i && i.nav === true : false;
-        });
-        var loads = [];
-        routes.forEach(function (route) {
-          loads.push(_this4.loadChildRouter(router, route.navModel));
-        });
-
-        return Promise.all(loads).then(function () {
-          return router.navigation;
-        });
-      });
-    };
-
-    NavigationMenu.prototype.loadChildRouter = function loadChildRouter(router, navModel) {
-      var _this5 = this;
-
-      var config = navModel.config;
-      var childContainer = router.container.createChild();
-
-      if (/\.html/.test(config.moduleId)) return navModel;
-
-      var viewModel = (0, _aureliaPath.relativeToFile)(config.moduleId, _aureliaMetadata.Origin.get(router.container.viewModel.constructor).moduleId);
-
-      var instruction = {
-        viewModel: viewModel,
-        childContainer: childContainer,
-        view: config.view || config.viewStrategy,
-        router: router
-      };
-
-      childContainer.getChildRouter = function () {
-        var childRouter = void 0;
-
-        childContainer.registerHandler(_aureliaRouter.Router, function (c) {
-          return childRouter || (childRouter = router.createChild(childContainer));
-        });
-
-        return childContainer.get(_aureliaRouter.Router);
-      };
-
-      return this.compositionEngine.ensureViewModel(instruction).then(function (component) {
-        var viewModel = component.viewModel,
-            childContainer = component.childContainer;
-
-        if ('configureRouter' in viewModel) {
-          var childRouter = childContainer.getChildRouter();
-          return _this5.loadChildRouters(childRouter, viewModel, false).then(function (i) {
-            navModel.navigation = i;
-            navModel.navigation.forEach(function (nav) {
-              nav.href = navModel.href + '/' + (nav.config.href ? nav.config.href : nav.config.route);
-            });
-            return navModel;
-          });
-        }
-      });
-    };
-
-    NavigationMenu.prototype.updateNavModels = function updateNavModels(navModels, instruction, instructionDepth, resetDepth) {
-      var _this6 = this;
-
-      navModels.forEach(function (navModel) {
-        if (resetDepth >= instructionDepth) navModel.isActive = false;
-        if (navModel.href === instruction.config.navModel.href) navModel.isActive = true;
-        if (navModel.navigation) {
-          _this6.updateNavModels(navModel.navigation, instruction, instructionDepth, resetDepth + 1);
-        }
-      });
-    };
-
-    NavigationMenu.prototype.updatemenu = function updatemenu(instruction, depth) {
-      this.updateNavModels(this.menu, instruction, depth, 0);
-      if ('childNavigationInstruction' in instruction.viewPortInstructions.default) {
-        this.updatemenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);
-      }
-    };
-
-    return NavigationMenu;
-  }();
 });
