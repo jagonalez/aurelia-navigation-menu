@@ -5,7 +5,7 @@ Enables eager loading of child routes and creates a navigation menu based on rou
 Install with npm
 `npm install aurelia-navigation-menu --save`
 
-If youre using the CLI add teh dependency
+If you're using the CLI add the dependency
 
 ### CLI
 ```
@@ -64,7 +64,6 @@ import { inject } from 'aurelia-dependency-injection';
 @inject(NavigationMenu)
 export class App {
   constructor(navigationMenu) {
-    navigationMenu;
     this.navigationMenu = navigationMenu;
   }
   activate(params) {
