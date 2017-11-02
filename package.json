@@ -1,6 +1,6 @@
 {
   "name": "aurelia-navigation-menu",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Creates a navigation menu within Aurelia",
   "main": "dist/commonjs/navigation-menu.js",
   "dependencies": {},
