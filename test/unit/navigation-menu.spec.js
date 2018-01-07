@@ -20,7 +20,17 @@ class MockEventAggregator {
     return "event";
   }
 }
-
+class MockCompositionEngineWithChildren {
+  constructor() {
+    this.children = 0;
+  }
+  ensureViewModel(context) {
+    context.viewModel = this.children < 1 ? new EagerLoader() : new RouteWithNoChildren();
+    context.childContainer.viewModel = context.viewModel;
+    this.children++;
+    return Promise.resolve(context);
+  }
+}
 class MockCompositionEngine {
   constructor() {
     this.viewModel = new RouteWithNoChildren();
@@ -185,14 +195,25 @@ describe('the navigaiton menu', () => {
 
     it('should try to load all nav routes if eagerLoadAll is set to true on the router configuration', (done) => {
       spyOn(navigationMenu, 'loadChildRouter').and.callThrough()
+      spyOn(navigationMenu, 'updateNavigationHref').and.callThrough()
       router.container.viewModel = new EagerLoader();
-      navigationMenu.loadChildRouters(router, new EagerLoader())
+      navigationMenu.loadChildRouters(router, router.container.viewModel)
       .then((navigation) => {
         expect(navigationMenu.loadChildRouter).toHaveBeenCalledTimes(2)
+        expect(navigationMenu.updateNavigationHref).toHaveBeenCalledTimes(2)
         done();
       })
     })
-
+    it('should setup all child navigation items', done => {
+      spyOn(navigationMenu, 'updateNavigationHref').and.callThrough()
+      navigationMenu.compositionEngine = new MockCompositionEngineWithChildren();
+      router.container.viewModel = new EagerLoader();
+      navigationMenu.loadChildRouters(router, router.container.viewModel)
+      .then((navigation) => {
+        expect(navigationMenu.updateNavigationHref).toHaveBeenCalledTimes(6)
+        done();
+      })
+    })
     it('should try to load all routes with a childRouter property when eagerIgnoreNav is set to true on the router configuration', (done) => {
       spyOn(navigationMenu, 'loadChildRouter').and.callThrough()
       router.container.viewModel = new EagerLoader();
