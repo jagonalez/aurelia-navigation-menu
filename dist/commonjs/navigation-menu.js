@@ -131,29 +131,63 @@ var NavigationMenu = exports.NavigationMenu = function () {
       if ('configureRouter' in viewModel) {
         var childRouter = childContainer.getChildRouter();
         return _this5.loadChildRouters(childRouter, viewModel, false).then(function (i) {
-          navModel.navigation = i;
-          navModel.navigation.forEach(function (nav) {
-            nav.href = navModel.href + '/' + (nav.config.href ? nav.config.href : nav.config.route);
-          });
+          navModel.navigation = _this5.updateNavigationHref(i, navModel);
           return navModel;
         });
       }
     });
   };
 
-  NavigationMenu.prototype.updateNavModels = function updateNavModels(navModels, instruction, instructionDepth, resetDepth) {
+  NavigationMenu.prototype.updateNavigationHref = function updateNavigationHref(navigation, navModel) {
     var _this6 = this;
 
+    navigation.forEach(function (nav) {
+      console.log(nav);
+      nav.href = _this6.setHref(nav, navModel);
+      if (nav.navigation) {
+        nav.navigation = _this6.updateNavigationHref(nav.navigation, nav);
+      }
+    });
+    return navigation;
+  };
+
+  NavigationMenu.prototype.setHref = function setHref(nav, navModel) {
+    var route = void 0;
+    if (nav.config.route === '') {
+      route = this.findRoute(nav);
+    } else {
+      route = nav.config.route;
+    }
+    return navModel.href + '/' + route;
+  };
+
+  NavigationMenu.prototype.findRoute = function findRoute(navModel) {
+    var route = void 0;
+    var routes = navModel.router.routes.filter(function (i) {
+      return i.moduleId === navModel.config.moduleId && i.route !== '' && i.name === navModel.config.name && i.title === navModel.config.title;
+    });
+    if (routes.length !== 0) route = routes[0].route;
+    return route || '';
+  };
+
+  NavigationMenu.prototype.updateNavModels = function updateNavModels(navModels, instruction, instructionDepth, resetDepth) {
+    var _this7 = this;
+
     navModels.forEach(function (navModel) {
+
       if (resetDepth >= instructionDepth) navModel.isActive = false;
-      if (navModel.href === instruction.config.navModel.href) navModel.isActive = true;
+      if (navModel.href === instruction.config.navModel.href) navModel.isActive = true;else if (navModel.config.route === '' && instruction.config.route !== '') {
+        var route = _this7.findRoute(navModel);
+        if (navModel.href === '' + instruction.config.navModel.href + route) navModel.isActive = true;
+      }
       if (navModel.navigation) {
-        _this6.updateNavModels(navModel.navigation, instruction, instructionDepth, resetDepth + 1);
+        _this7.updateNavModels(navModel.navigation, instruction, instructionDepth, resetDepth + 1);
       }
     });
   };
 
   NavigationMenu.prototype.updateMenu = function updateMenu(instruction, depth) {
+    console.log(instruction);
     this.updateNavModels(this.menu, instruction, depth, 0);
     if ('childNavigationInstruction' in instruction.viewPortInstructions.default) {
       this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);

@@ -95,20 +95,50 @@ export let NavigationMenu = class NavigationMenu {
       if ('configureRouter' in viewModel) {
         let childRouter = childContainer.getChildRouter();
         return this.loadChildRouters(childRouter, viewModel, false).then(i => {
-          navModel.navigation = i;
-          navModel.navigation.forEach(nav => {
-            nav.href = `${navModel.href}/${nav.config.href ? nav.config.href : nav.config.route}`;
-          });
+          navModel.navigation = this.updateNavigationHref(i, navModel);
           return navModel;
         });
       }
     });
   }
 
+  updateNavigationHref(navigation, navModel) {
+    navigation.forEach(nav => {
+      console.log(nav);
+      nav.href = this.setHref(nav, navModel);
+      if (nav.navigation) {
+        nav.navigation = this.updateNavigationHref(nav.navigation, nav);
+      }
+    });
+    return navigation;
+  }
+
+  setHref(nav, navModel) {
+    let route;
+    if (nav.config.route === '') {
+      route = this.findRoute(nav);
+    } else {
+      route = nav.config.route;
+    }
+    return `${navModel.href}/${route}`;
+  }
+
+  findRoute(navModel) {
+    let route;
+    let routes = navModel.router.routes.filter(i => i.moduleId === navModel.config.moduleId && i.route !== '' && i.name === navModel.config.name && i.title === navModel.config.title);
+    if (routes.length !== 0) route = routes[0].route;
+    return route || '';
+  }
+
   updateNavModels(navModels, instruction, instructionDepth, resetDepth) {
+
     navModels.forEach(navModel => {
+
       if (resetDepth >= instructionDepth) navModel.isActive = false;
-      if (navModel.href === instruction.config.navModel.href) navModel.isActive = true;
+      if (navModel.href === instruction.config.navModel.href) navModel.isActive = true;else if (navModel.config.route === '' && instruction.config.route !== '') {
+        let route = this.findRoute(navModel);
+        if (navModel.href === `${instruction.config.navModel.href}${route}`) navModel.isActive = true;
+      }
       if (navModel.navigation) {
         this.updateNavModels(navModel.navigation, instruction, instructionDepth, resetDepth + 1);
       }
@@ -116,6 +146,7 @@ export let NavigationMenu = class NavigationMenu {
   }
 
   updateMenu(instruction, depth) {
+    console.log(instruction);
     this.updateNavModels(this.menu, instruction, depth, 0);
     if ('childNavigationInstruction' in instruction.viewPortInstructions.default) {
       this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);
