@@ -56,7 +56,7 @@ This plugin add's a navigation property each navigation item within the App Rout
 For example using the above code you can get Cat's routes by checking: `router.navigation[1].navigation`
 
 ### Ensuring The Navigation Menu Is Loaded
-
+** if you return ensureMenu from the activate method - the app will deadlock. **
 ```
 import { NavigationMenu } from 'aurelia-navigation-menu';
 import { inject } from 'aurelia-dependency-injection';
@@ -67,7 +67,7 @@ export class App {
     this.navigationMenu = navigationMenu;
   }
   activate(params) {
-    return this.navigationMenu.ensureMenu()
+    this.navigationMenu.ensureMenu()
   }
 }
 ```
