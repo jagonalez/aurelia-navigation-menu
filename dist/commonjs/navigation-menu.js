@@ -190,7 +190,7 @@ var NavigationMenu = exports.NavigationMenu = function () {
 
     var viewPortName = 'default';
     for (var name in instruction.viewPortInstructions) {
-      if (name.hasOwnProperty(name)) {
+      if (instruction.viewPortInstructions.hasOwnProperty(name)) {
         viewPortName = name;
         break;
       }

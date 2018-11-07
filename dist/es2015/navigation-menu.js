@@ -149,7 +149,7 @@ export let NavigationMenu = class NavigationMenu {
 
     let viewPortName = 'default';
     for (let name in instruction.viewPortInstructions) {
-      if (name.hasOwnProperty(name)) {
+      if (instruction.viewPortInstructions.hasOwnProperty(name)) {
         viewPortName = name;
         break;
       }

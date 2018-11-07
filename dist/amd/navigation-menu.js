@@ -181,7 +181,7 @@ define(['exports', 'aurelia-router', 'aurelia-dependency-injection', 'aurelia-te
 
       var viewPortName = 'default';
       for (var name in instruction.viewPortInstructions) {
-        if (name.hasOwnProperty(name)) {
+        if (instruction.viewPortInstructions.hasOwnProperty(name)) {
           viewPortName = name;
           break;
         }

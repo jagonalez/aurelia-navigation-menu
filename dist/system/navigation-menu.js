@@ -199,7 +199,7 @@ System.register(['aurelia-router', 'aurelia-dependency-injection', 'aurelia-temp
 
           var viewPortName = 'default';
           for (var name in instruction.viewPortInstructions) {
-            if (name.hasOwnProperty(name)) {
+            if (instruction.viewPortInstructions.hasOwnProperty(name)) {
               viewPortName = name;
               break;
             }
