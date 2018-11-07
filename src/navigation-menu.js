@@ -154,9 +154,17 @@ export class NavigationMenu {
   }
 
   updateMenu(instruction, depth) {
-    this.updateNavModels(this.menu, instruction, depth, 0)
-    if ('childNavigationInstruction' in instruction.viewPortInstructions.default) {
-      this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth+1)
+    this.updateNavModels(this.menu, instruction, depth, 0);
+	
+	let viewPortName = 'default';
+	for(let name in instruction.viewPortInstructions) {
+	  if(name.hasOwnProperty(name)) {
+		viewPortName = name;
+		break;
+	  }
+	}
+    if ('childNavigationInstruction' in instruction.viewPortInstructions[viewPortName]) {
+      this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth+1);
     }
   }
 

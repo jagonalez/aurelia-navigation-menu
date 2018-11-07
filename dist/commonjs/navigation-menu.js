@@ -142,7 +142,6 @@ var NavigationMenu = exports.NavigationMenu = function () {
     var _this6 = this;
 
     navigation.forEach(function (nav) {
-      console.log(nav);
       nav.href = _this6.setHref(nav, navModel);
       if (nav.navigation) {
         nav.navigation = _this6.updateNavigationHref(nav.navigation, nav);
@@ -187,9 +186,16 @@ var NavigationMenu = exports.NavigationMenu = function () {
   };
 
   NavigationMenu.prototype.updateMenu = function updateMenu(instruction, depth) {
-    console.log(instruction);
     this.updateNavModels(this.menu, instruction, depth, 0);
-    if ('childNavigationInstruction' in instruction.viewPortInstructions.default) {
+
+    var viewPortName = 'default';
+    for (var name in instruction.viewPortInstructions) {
+      if (name.hasOwnProperty(name)) {
+        viewPortName = name;
+        break;
+      }
+    }
+    if ('childNavigationInstruction' in instruction.viewPortInstructions[viewPortName]) {
       this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);
     }
   };
