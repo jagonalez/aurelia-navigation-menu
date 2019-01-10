@@ -104,7 +104,6 @@ export let NavigationMenu = class NavigationMenu {
 
   updateNavigationHref(navigation, navModel) {
     navigation.forEach(nav => {
-      console.log(nav);
       nav.href = this.setHref(nav, navModel);
       if (nav.navigation) {
         nav.navigation = this.updateNavigationHref(nav.navigation, nav);
@@ -146,9 +145,17 @@ export let NavigationMenu = class NavigationMenu {
   }
 
   updateMenu(instruction, depth) {
-    console.log(instruction);
     this.updateNavModels(this.menu, instruction, depth, 0);
-    if ('childNavigationInstruction' in instruction.viewPortInstructions.default) {
+
+    let viewPortName = 'default';
+    for (let name in instruction.viewPortInstructions) {
+      if (instruction.viewPortInstructions.hasOwnProperty(name)) {
+        viewPortName = name;
+        break;
+      }
+    }
+    const viewPortInstructions = instruction.viewPortInstructions[viewPortName];
+    if (viewPortInstructions && 'childNavigationInstruction' in viewPortInstructions) {
       this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);
     }
   }

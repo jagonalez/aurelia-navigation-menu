@@ -154,10 +154,19 @@ export class NavigationMenu {
   }
 
   updateMenu(instruction, depth) {
-    this.updateNavModels(this.menu, instruction, depth, 0)
-    if ('childNavigationInstruction' in instruction.viewPortInstructions.default) {
-      this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth+1)
-    }
+    this.updateNavModels(this.menu, instruction, depth, 0);
+	
+	let viewPortName = 'default';
+	for(let name in instruction.viewPortInstructions) {
+	  if(instruction.viewPortInstructions.hasOwnProperty(name)) {
+		viewPortName = name;
+		break;
+	  }
+	}
+    const viewPortInstructions = instruction.viewPortInstructions[viewPortName];
+	if (viewPortInstructions && 'childNavigationInstruction' in viewPortInstructions) {
+		this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);
+	}
   }
 
 }
