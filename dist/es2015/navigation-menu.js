@@ -154,7 +154,8 @@ export let NavigationMenu = class NavigationMenu {
         break;
       }
     }
-    if ('childNavigationInstruction' in instruction.viewPortInstructions[viewPortName]) {
+    const viewPortInstructions = instruction.viewPortInstructions[viewPortName];
+    if (viewPortInstructions && 'childNavigationInstruction' in viewPortInstructions) {
       this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);
     }
   }

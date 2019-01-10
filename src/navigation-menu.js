@@ -163,9 +163,10 @@ export class NavigationMenu {
 		break;
 	  }
 	}
-    if ('childNavigationInstruction' in instruction.viewPortInstructions[viewPortName]) {
-      this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth+1);
-    }
+    const viewPortInstructions = instruction.viewPortInstructions[viewPortName];
+	if (viewPortInstructions && 'childNavigationInstruction' in viewPortInstructions) {
+		this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);
+	}
   }
 
 }

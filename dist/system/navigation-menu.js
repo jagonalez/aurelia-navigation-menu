@@ -204,7 +204,8 @@ System.register(['aurelia-router', 'aurelia-dependency-injection', 'aurelia-temp
               break;
             }
           }
-          if ('childNavigationInstruction' in instruction.viewPortInstructions[viewPortName]) {
+          var viewPortInstructions = instruction.viewPortInstructions[viewPortName];
+          if (viewPortInstructions && 'childNavigationInstruction' in viewPortInstructions) {
             this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);
           }
         };

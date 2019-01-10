@@ -195,7 +195,8 @@ var NavigationMenu = exports.NavigationMenu = function () {
         break;
       }
     }
-    if ('childNavigationInstruction' in instruction.viewPortInstructions[viewPortName]) {
+    var viewPortInstructions = instruction.viewPortInstructions[viewPortName];
+    if (viewPortInstructions && 'childNavigationInstruction' in viewPortInstructions) {
       this.updateMenu(instruction.viewPortInstructions.default.childNavigationInstruction, depth + 1);
     }
   };
